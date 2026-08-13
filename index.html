@@ -25,172 +25,461 @@ school, organization, or business.
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dino Game</title>
+
+<title>Dalucas Dino Run</title>
 
 <style>
-    body {
-        margin: 0;
-        background: #f7f7f7;
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
+
+body {
+    margin: 0;
+    background: #f7f7f7;
+    font-family: Arial, sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
+}
+
+#game {
+    width: 800px;
+    max-width: 95vw;
+    height: 250px;
+
+    background: white;
+
+    border: 2px solid #555;
+    border-bottom: 4px solid #555;
+
+    position: relative;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+/* -------------------------
+   DALUCAS TITLE
+------------------------- */
+
+#title {
+    position: absolute;
+
+    top: 12px;
+    left: 20px;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    letter-spacing: 3px;
+
+    color: #444;
+}
+
+
+/* -------------------------
+   SCORE
+------------------------- */
+
+#score {
+
+    position: absolute;
+
+    top: 15px;
+    right: 20px;
+
+    font-family: monospace;
+
+    font-size: 18px;
+
+    color: #555;
+}
+
+
+/* -------------------------
+   MESSAGE
+------------------------- */
+
+#message {
+
+    position: absolute;
+
+    width: 100%;
+
+    text-align: center;
+
+    top: 80px;
+
+    font-size: 20px;
+
+    color: #555;
+
+    z-index: 10;
+}
+
+
+/* -------------------------
+   DINO
+------------------------- */
+
+#dino {
+
+    position: absolute;
+
+    left: 70px;
+
+    bottom: 3px;
+
+    font-size: 52px;
+
+    line-height: 52px;
+
+    transform: scaleX(-1);
+
+    z-index: 5;
+}
+
+
+/* -------------------------
+   CACTUS
+------------------------- */
+
+.cactus {
+
+    position: absolute;
+
+    bottom: 3px;
+
+    font-size: 45px;
+
+    line-height: 45px;
+
+    z-index: 4;
+}
+
+
+/* -------------------------
+   SUNNY D
+------------------------- */
+
+.sunnyD {
+
+    position: absolute;
+
+    bottom: 45px;
+
+    font-size: 32px;
+
+    z-index: 3;
+
+    animation: float 1s infinite alternate;
+}
+
+
+/* -------------------------
+   ORANGE
+------------------------- */
+
+.orange {
+
+    position: absolute;
+
+    bottom: 45px;
+
+    font-size: 30px;
+
+    z-index: 3;
+
+    animation: float 1s infinite alternate;
+}
+
+
+@keyframes float {
+
+    from {
+        transform: translateY(0);
     }
 
-    #game {
-        width: 800px;
-        max-width: 95vw;
-        height: 220px;
-        background: white;
-        border-bottom: 3px solid #555;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
+    to {
+        transform: translateY(-7px);
     }
 
-    #dino {
-        position: absolute;
-        left: 70px;
-        bottom: 3px;
-        font-size: 55px;
-        line-height: 55px;
-        user-select: none;
-    }
+}
 
-    .cactus {
-        position: absolute;
-        bottom: 3px;
-        font-size: 45px;
-        line-height: 45px;
-        user-select: none;
-    }
 
-    #score {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-family: monospace;
-        font-size: 18px;
-        color: #555;
-    }
+/* -------------------------
+   GROUND
+------------------------- */
 
-    #message {
-        position: absolute;
-        width: 100%;
-        text-align: center;
-        top: 75px;
-        font-size: 18px;
-        color: #555;
-    }
+#ground {
 
-    #ground {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        border-bottom: 3px dashed #888;
-    }
+    position: absolute;
+
+    left: 0;
+
+    bottom: 0;
+
+    width: 100%;
+
+    border-bottom: 3px dashed #888;
+}
+
+
+/* -------------------------
+   BONUS TEXT
+------------------------- */
+
+#bonus {
+
+    position: absolute;
+
+    left: 50%;
+
+    top: 45%;
+
+    transform: translate(-50%, -50%);
+
+    font-size: 26px;
+
+    font-weight: bold;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: opacity .2s;
+}
+
 </style>
 </head>
 
+
 <body>
 
+
 <div id="game">
-    <div id="score">00000</div>
-    <div id="message">Press SPACE to start</div>
-    <div id="dino">🦖</div>
+
+    <div id="title">
+        DALUCAS
+    </div>
+
+    <div id="score">
+        00000
+    </div>
+
+    <div id="message">
+        Press SPACE to start
+    </div>
+
+    <div id="bonus"></div>
+
+    <div id="dino">
+        🦖
+    </div>
+
     <div id="ground"></div>
+
 </div>
+
 
 <script>
 
-const game = document.getElementById("game");
-const dino = document.getElementById("dino");
-const scoreDisplay = document.getElementById("score");
-const message = document.getElementById("message");
 
-let jumping = false;
+// =====================================================
+// GAME VARIABLES
+// =====================================================
+
+const game =
+    document.getElementById("game");
+
+const dino =
+    document.getElementById("dino");
+
+const scoreDisplay =
+    document.getElementById("score");
+
+const message =
+    document.getElementById("message");
+
+const bonusText =
+    document.getElementById("bonus");
+
+
 let gameRunning = false;
+
 let gameOver = false;
 
+
 let dinoY = 0;
+
 let velocity = 0;
 
+
 let score = 0;
+
 let speed = 6;
 
+
 let cactusTimer = 0;
+
+let itemTimer = 0;
+
+
 let lastTime = 0;
 
+
+// Physics
+
 const gravity = 0.6;
+
 const jumpPower = 12;
 
 
-// -------------------------
+// =====================================================
 // START GAME
-// -------------------------
+// =====================================================
 
 function startGame() {
 
-    if (gameRunning) return;
+    if (gameRunning)
+        return;
+
 
     gameRunning = true;
+
     gameOver = false;
 
+
     score = 0;
+
     speed = 6;
 
+
+    cactusTimer = 700;
+
+    itemTimer = 1500;
+
+
     message.style.display = "none";
+
+
+    lastTime = performance.now();
+
 
     requestAnimationFrame(gameLoop);
 }
 
 
-// -------------------------
+// =====================================================
 // JUMP
-// -------------------------
+// =====================================================
 
 function jump() {
 
     if (!gameRunning) {
+
         startGame();
+
         return;
     }
 
+
     if (dinoY === 0) {
+
         velocity = jumpPower;
     }
 }
 
 
-// -------------------------
+// =====================================================
 // CREATE CACTUS
-// -------------------------
+// =====================================================
 
 function createCactus() {
 
-    const cactus = document.createElement("div");
+    const cactus =
+        document.createElement("div");
 
-    cactus.className = "cactus";
-    cactus.textContent = "🌵";
 
-    cactus.style.right = "-50px";
+    cactus.className =
+        "cactus";
+
+
+    cactus.textContent =
+        "🌵";
+
+
+    cactus.style.right =
+        "-60px";
+
 
     game.appendChild(cactus);
-
-    return cactus;
 }
 
 
-// -------------------------
+// =====================================================
+// CREATE BONUS ITEM
+// =====================================================
+
+function createBonusItem() {
+
+    const item =
+        document.createElement("div");
+
+
+    // 50/50 chance
+
+    if (Math.random() < 0.5) {
+
+        item.className =
+            "sunnyD";
+
+        item.textContent =
+            "🍊";
+
+        item.dataset.type =
+            "Sunny D";
+
+    } else {
+
+        item.className =
+            "orange";
+
+        item.textContent =
+            "🍊";
+
+        item.dataset.type =
+            "Orange";
+    }
+
+
+    item.style.right =
+        "-50px";
+
+
+    item.style.bottom =
+        (45 + Math.random() * 55) + "px";
+
+
+    game.appendChild(item);
+}
+
+
+// =====================================================
 // COLLISION
-// -------------------------
+// =====================================================
 
 function collision(a, b) {
 
-    const ar = a.getBoundingClientRect();
-    const br = b.getBoundingClientRect();
+    const ar =
+        a.getBoundingClientRect();
+
+    const br =
+        b.getBoundingClientRect();
+
 
     return !(
         ar.right < br.left ||
@@ -201,102 +490,234 @@ function collision(a, b) {
 }
 
 
-// -------------------------
+// =====================================================
+// SHOW BONUS
+// =====================================================
+
+function showBonus(text) {
+
+    bonusText.textContent =
+        text;
+
+
+    bonusText.style.opacity =
+        "1";
+
+
+    setTimeout(function() {
+
+        bonusText.style.opacity =
+            "0";
+
+    }, 500);
+}
+
+
+// =====================================================
 // GAME LOOP
-// -------------------------
+// =====================================================
 
 function gameLoop(timestamp) {
 
-    if (!gameRunning) return;
+    if (!gameRunning)
+        return;
 
-    const delta = timestamp - lastTime;
+
+    const delta =
+        timestamp - lastTime;
+
+
     lastTime = timestamp;
 
-    // ---------------------
-    // Dino physics
-    // ---------------------
+
+    // ============================================
+    // DINO PHYSICS
+    // ============================================
 
     velocity -= gravity;
 
     dinoY += velocity;
 
+
     if (dinoY <= 0) {
+
         dinoY = 0;
+
         velocity = 0;
     }
 
-    dino.style.bottom = (dinoY + 3) + "px";
+
+    dino.style.bottom =
+        (dinoY + 3) + "px";
 
 
-    // ---------------------
-    // Spawn obstacles
-    // ---------------------
+    // ============================================
+    // CACTUS SPAWNING
+    // ============================================
 
     cactusTimer -= delta;
+
 
     if (cactusTimer <= 0) {
 
         createCactus();
+
 
         cactusTimer =
             900 + Math.random() * 1200;
     }
 
 
-    // ---------------------
-    // Move obstacles
-    // ---------------------
+    // ============================================
+    // BONUS ITEM SPAWNING
+    // ============================================
+
+    itemTimer -= delta;
+
+
+    if (itemTimer <= 0) {
+
+        createBonusItem();
+
+
+        itemTimer =
+            1800 + Math.random() * 2500;
+    }
+
+
+    // ============================================
+    // MOVE CACTUSES
+    // ============================================
 
     const cactuses =
         document.querySelectorAll(".cactus");
 
-    cactuses.forEach(cactus => {
+
+    cactuses.forEach(function(cactus) {
 
         let right =
             parseFloat(
                 getComputedStyle(cactus).right
             );
 
+
         right += speed;
 
-        cactus.style.right = right + "px";
+
+        cactus.style.right =
+            right + "px";
 
 
         // Collision
 
         if (collision(dino, cactus)) {
+
             endGame();
+
         }
 
 
-        // Remove old cactus
+        // Remove
 
-        if (right > game.clientWidth + 100) {
+        if (right >
+            game.clientWidth + 100) {
+
             cactus.remove();
         }
 
     });
 
 
-    // ---------------------
-    // Score
-    // ---------------------
+    // ============================================
+    // MOVE BONUS ITEMS
+    // ============================================
 
-    score += delta * 0.01;
+    const items =
+        document.querySelectorAll(
+            ".sunnyD, .orange"
+        );
+
+
+    items.forEach(function(item) {
+
+        let right =
+            parseFloat(
+                getComputedStyle(item).right
+            );
+
+
+        right += speed;
+
+
+        item.style.right =
+            right + "px";
+
+
+        // Collect item
+
+        if (collision(dino, item)) {
+
+            const type =
+                item.dataset.type;
+
+
+            if (type === "Sunny D") {
+
+                score += 500;
+
+                showBonus(
+                    "SUNNY D! +500"
+                );
+
+            } else {
+
+                score += 250;
+
+                showBonus(
+                    "ORANGE! +250"
+                );
+            }
+
+
+            item.remove();
+        }
+
+
+        // Remove old item
+
+        if (right >
+            game.clientWidth + 100) {
+
+            item.remove();
+        }
+
+    });
+
+
+    // ============================================
+    // SCORE
+    // ============================================
+
+    score +=
+        delta * 0.01;
+
 
     scoreDisplay.textContent =
         Math.floor(score)
-            .toString()
-            .padStart(5, "0");
+        .toString()
+        .padStart(5, "0");
 
 
-    // ---------------------
-    // Gradually increase speed
-    // ---------------------
+    // ============================================
+    // INCREASE SPEED
+    // ============================================
 
-    speed += delta * 0.00005;
+    speed +=
+        delta * 0.00005;
+
 
     if (speed > 13) {
+
         speed = 13;
     }
 
@@ -305,16 +726,20 @@ function gameLoop(timestamp) {
 }
 
 
-// -------------------------
+// =====================================================
 // GAME OVER
-// -------------------------
+// =====================================================
 
 function endGame() {
 
     gameRunning = false;
+
     gameOver = true;
 
-    message.style.display = "block";
+
+    message.style.display =
+        "block";
+
 
     message.innerHTML =
         "GAME OVER<br>" +
@@ -322,29 +747,92 @@ function endGame() {
 }
 
 
-// -------------------------
+// =====================================================
+// RESET
+// =====================================================
+
+function resetGame() {
+
+    document
+        .querySelectorAll(
+            ".cactus, .sunnyD, .orange"
+        )
+        .forEach(function(element) {
+
+            element.remove();
+
+        });
+
+
+    dinoY = 0;
+
+    velocity = 0;
+
+    score = 0;
+
+    speed = 6;
+
+
+    gameOver = false;
+
+    gameRunning = false;
+
+
+    message.innerHTML =
+        "Press SPACE to start";
+
+
+    message.style.display =
+        "block";
+}
+
+
+// =====================================================
 // KEYBOARD CONTROLS
-// -------------------------
+// =====================================================
 
-document.addEventListener("keydown", function(e) {
+document.addEventListener(
+    "keydown",
+    function(e) {
 
-    if (e.code === "Space" ||
-        e.code === "ArrowUp") {
 
-        e.preventDefault();
+        if (
+            e.code === "Space" ||
+            e.code === "ArrowUp"
+        ) {
+
+            e.preventDefault();
+
+
+            if (gameOver) {
+
+                resetGame();
+
+                startGame();
+
+            } else {
+
+                jump();
+
+            }
+        }
+
+    }
+);
+
+
+// =====================================================
+// MOUSE / TOUCH
+// =====================================================
+
+game.addEventListener(
+    "click",
+    function() {
+
 
         if (gameOver) {
 
-            // Reset obstacles
-
-            document
-                .querySelectorAll(".cactus")
-                .forEach(c => c.remove());
-
-            dinoY = 0;
-            velocity = 0;
-
-            gameRunning = false;
+            resetGame();
 
             startGame();
 
@@ -353,37 +841,10 @@ document.addEventListener("keydown", function(e) {
             jump();
 
         }
-    }
-
-});
-
-
-// -------------------------
-// MOUSE / TOUCH
-// -------------------------
-
-game.addEventListener("click", function() {
-
-    if (gameOver) {
-
-        document
-            .querySelectorAll(".cactus")
-            .forEach(c => c.remove());
-
-        dinoY = 0;
-        velocity = 0;
-
-        gameRunning = false;
-
-        startGame();
-
-    } else {
-
-        jump();
 
     }
+);
 
-});
 
 </script>
 
