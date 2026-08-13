@@ -20,3 +20,372 @@ school, organization, or business.
 </p>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dino Game</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #f7f7f7;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    #game {
+        width: 800px;
+        max-width: 95vw;
+        height: 220px;
+        background: white;
+        border-bottom: 3px solid #555;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    #dino {
+        position: absolute;
+        left: 70px;
+        bottom: 3px;
+        font-size: 55px;
+        line-height: 55px;
+        user-select: none;
+    }
+
+    .cactus {
+        position: absolute;
+        bottom: 3px;
+        font-size: 45px;
+        line-height: 45px;
+        user-select: none;
+    }
+
+    #score {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-family: monospace;
+        font-size: 18px;
+        color: #555;
+    }
+
+    #message {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        top: 75px;
+        font-size: 18px;
+        color: #555;
+    }
+
+    #ground {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        border-bottom: 3px dashed #888;
+    }
+</style>
+</head>
+
+<body>
+
+<div id="game">
+    <div id="score">00000</div>
+    <div id="message">Press SPACE to start</div>
+    <div id="dino">🦖</div>
+    <div id="ground"></div>
+</div>
+
+<script>
+
+const game = document.getElementById("game");
+const dino = document.getElementById("dino");
+const scoreDisplay = document.getElementById("score");
+const message = document.getElementById("message");
+
+let jumping = false;
+let gameRunning = false;
+let gameOver = false;
+
+let dinoY = 0;
+let velocity = 0;
+
+let score = 0;
+let speed = 6;
+
+let cactusTimer = 0;
+let lastTime = 0;
+
+const gravity = 0.6;
+const jumpPower = 12;
+
+
+// -------------------------
+// START GAME
+// -------------------------
+
+function startGame() {
+
+    if (gameRunning) return;
+
+    gameRunning = true;
+    gameOver = false;
+
+    score = 0;
+    speed = 6;
+
+    message.style.display = "none";
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+// -------------------------
+// JUMP
+// -------------------------
+
+function jump() {
+
+    if (!gameRunning) {
+        startGame();
+        return;
+    }
+
+    if (dinoY === 0) {
+        velocity = jumpPower;
+    }
+}
+
+
+// -------------------------
+// CREATE CACTUS
+// -------------------------
+
+function createCactus() {
+
+    const cactus = document.createElement("div");
+
+    cactus.className = "cactus";
+    cactus.textContent = "🌵";
+
+    cactus.style.right = "-50px";
+
+    game.appendChild(cactus);
+
+    return cactus;
+}
+
+
+// -------------------------
+// COLLISION
+// -------------------------
+
+function collision(a, b) {
+
+    const ar = a.getBoundingClientRect();
+    const br = b.getBoundingClientRect();
+
+    return !(
+        ar.right < br.left ||
+        ar.left > br.right ||
+        ar.bottom < br.top ||
+        ar.top > br.bottom
+    );
+}
+
+
+// -------------------------
+// GAME LOOP
+// -------------------------
+
+function gameLoop(timestamp) {
+
+    if (!gameRunning) return;
+
+    const delta = timestamp - lastTime;
+    lastTime = timestamp;
+
+    // ---------------------
+    // Dino physics
+    // ---------------------
+
+    velocity -= gravity;
+
+    dinoY += velocity;
+
+    if (dinoY <= 0) {
+        dinoY = 0;
+        velocity = 0;
+    }
+
+    dino.style.bottom = (dinoY + 3) + "px";
+
+
+    // ---------------------
+    // Spawn obstacles
+    // ---------------------
+
+    cactusTimer -= delta;
+
+    if (cactusTimer <= 0) {
+
+        createCactus();
+
+        cactusTimer =
+            900 + Math.random() * 1200;
+    }
+
+
+    // ---------------------
+    // Move obstacles
+    // ---------------------
+
+    const cactuses =
+        document.querySelectorAll(".cactus");
+
+    cactuses.forEach(cactus => {
+
+        let right =
+            parseFloat(
+                getComputedStyle(cactus).right
+            );
+
+        right += speed;
+
+        cactus.style.right = right + "px";
+
+
+        // Collision
+
+        if (collision(dino, cactus)) {
+            endGame();
+        }
+
+
+        // Remove old cactus
+
+        if (right > game.clientWidth + 100) {
+            cactus.remove();
+        }
+
+    });
+
+
+    // ---------------------
+    // Score
+    // ---------------------
+
+    score += delta * 0.01;
+
+    scoreDisplay.textContent =
+        Math.floor(score)
+            .toString()
+            .padStart(5, "0");
+
+
+    // ---------------------
+    // Gradually increase speed
+    // ---------------------
+
+    speed += delta * 0.00005;
+
+    if (speed > 13) {
+        speed = 13;
+    }
+
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+// -------------------------
+// GAME OVER
+// -------------------------
+
+function endGame() {
+
+    gameRunning = false;
+    gameOver = true;
+
+    message.style.display = "block";
+
+    message.innerHTML =
+        "GAME OVER<br>" +
+        "<small>Press SPACE to restart</small>";
+}
+
+
+// -------------------------
+// KEYBOARD CONTROLS
+// -------------------------
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.code === "Space" ||
+        e.code === "ArrowUp") {
+
+        e.preventDefault();
+
+        if (gameOver) {
+
+            // Reset obstacles
+
+            document
+                .querySelectorAll(".cactus")
+                .forEach(c => c.remove());
+
+            dinoY = 0;
+            velocity = 0;
+
+            gameRunning = false;
+
+            startGame();
+
+        } else {
+
+            jump();
+
+        }
+    }
+
+});
+
+
+// -------------------------
+// MOUSE / TOUCH
+// -------------------------
+
+game.addEventListener("click", function() {
+
+    if (gameOver) {
+
+        document
+            .querySelectorAll(".cactus")
+            .forEach(c => c.remove());
+
+        dinoY = 0;
+        velocity = 0;
+
+        gameRunning = false;
+
+        startGame();
+
+    } else {
+
+        jump();
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
